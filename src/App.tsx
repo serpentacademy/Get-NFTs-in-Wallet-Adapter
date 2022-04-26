@@ -37,7 +37,7 @@ export default App;
 
 const Context: FC<{ children: ReactNode }> = ({ children }) => {
     // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
-    const network = WalletAdapterNetwork.Devnet;
+    const network = WalletAdapterNetwork.Mainnet;
 
     // You can also provide a custom RPC endpoint.
     const endpoint = useMemo(() => clusterApiUrl(network), [network]);
@@ -73,9 +73,7 @@ const Content: FC = () => {
 
     const connection = new Connection("https://api.mainnet-beta.solana.com");
 
-    const createConnection = () => {
-      return new Connection(clusterApiUrl("mainnet-beta"));
-    };
+    
     //getTokenAccountsByOwner(publicKey,)
     async function getTheTokensOfOwner(MY_WALLET_ADDRESS: string){
     
@@ -104,13 +102,15 @@ const Content: FC = () => {
       console.log(
         `Found ${accounts.length} token account(s) for wallet ${MY_WALLET_ADDRESS}: `
       );
+      let totalNFTsI = 0;
        await accounts.forEach((account, i) => {
          // account.account.data;
-         let theaccount = JSON.parse(JSON.stringify(account.account.data.toString()));
          let amountI = account.account.data["parsed"]["info"]["tokenAmount"]["uiAmount"];
          let mint_s = account.account.data["parsed"]["info"]["mint"]
     
         if (amountI==1){
+          totalNFTsI += 1;
+
           try{
             console.log(
               `-- Token Account Address ${i + 1}: ${account.pubkey.toString()} --`
@@ -132,9 +132,15 @@ const Content: FC = () => {
     
         }
       
-      }
-      
-      );
+      });
+
+      console.log("total NFTs: {}", totalNFTsI);
+
+      let nfts_total_element = <span>({totalNFTsI})</span>;
+ 
+      ReactDOM.render(nfts_total_element, document.getElementById("totalNFTs"))
+ 
+
       console.log("tokens: "+tokensInWallet)
       let currentI = 0
       await tokensInWallet.forEach(element => {
@@ -237,7 +243,7 @@ const Content: FC = () => {
    <div className='container-fluid' id='nfts'>
      
        <button onClick={onClick}>get NFTs</button>
-     <br></br>  <h1>NFTs in wallet</h1>
+     <br></br>  <h1>NFTs in wallet <span id='totalNFTs'></span></h1>
      <div className='row-fluid'>
 
        <div className='span4'>
